@@ -13,17 +13,19 @@ years = ['{:0>2d}'.format(i) for i in range(6, 17)]
 ### Launch the crawler
 
 ```sh
-python crawler.py
+$ python crawler.py
+Retrieving http://arxiv.org/list/cs.CV/0601?show=1000
+...
 ```
 
 ### Check the results
 
 ```sh
-python
+$ python
 >>> import sqlite3
 >>> conn = sqlite3.connect('arxiv_raw.sqlite')
 >>> cur = conn.cursor()
->>> cur.execute('SELECT * FROM sql_master')
+>>> cur.execute('SELECT * FROM sqlite_master')
 >>> print cur.fetchall() # print the information for all tables
 ```
 
