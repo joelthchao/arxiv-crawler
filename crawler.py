@@ -1,12 +1,12 @@
 import urllib
 import sqlite3
-from BeautifulSoup import *
+from bs4 import *
 import re
 
 url = 'http://arxiv.org/list/cs.{}/{}{}?show=1000'
 fields = ['CV']
-months = ['{:0>2d}'.format(i+1) for i in range(12)]
-years = ['{:0>2d}'.format(i) for i in range(6, 17)]
+months = ['{:0>2d}'.format(i+1) for i in range(2)]
+years = ['{:0>2d}'.format(i) for i in range(16, 17)]
 
 conn = sqlite3.connect('arxiv_raw.sqlite')
 cur = conn.cursor()
@@ -33,19 +33,19 @@ for field in fields:
     for year in years:
         for month in months:
             query_url = url.format(field, year, month)
-            print 'Retrieving {}'.format(query_url)
-            uh = urllib.urlopen(query_url)
+            print('Retrieving {}'.format(query_url))
+            uh = urllib.request.urlopen(query_url)
             data = uh.read()
-            soup = BeautifulSoup(str(data))
+            soup = BeautifulSoup(str(data), "html5lib")
             titles = soup.findAll('div', {'class': 'list-title'})
             authors = soup.findAll('div', {'class': 'list-authors'})
             paper_urls = soup.findAll('span', {'class': 'list-identifier'})
             if len(titles) != len(authors):
-                print 'number of titles and authors mismatch'
+                print('number of titles and authors mismatch')
             else:
                 for title, author, paper_url in zip(titles, authors, paper_urls):
                     title = title.contents[-1].strip()
-                    paper_url = 'http://arxiv.org' + paper_url.contents[0].attrs[0][1]
+                    paper_url = 'http://arxiv.org' + paper_url.contents[0].attrs['href']
                     cur.execute('''
                         INSERT OR IGNORE INTO Papers (title, url, year, month) 
                         VALUES (?, ?, ?, ?)''', (title, paper_url, int(year), int(month)))
